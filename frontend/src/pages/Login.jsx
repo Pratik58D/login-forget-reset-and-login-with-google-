@@ -1,9 +1,58 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { registerUser } from "../store/slices/authSlices.js";
+
+const intialState = {
+  userName: "",
+  email: "",
+  password: "",
+  confirmPassword : ""
+};
 
 const Login = () => {
+  const [formData, setFormData] = useState(intialState);
   const [signup, setSignUp] = useState("login");
   const navigate = useNavigate();
+  const dispatch = useDispatch();;
+
+ 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,   
+    }));
+  };
+  console.log(formData)
+
+   const submit = (e) => {
+    e.preventDefault();
+     // Client-side confirm password check
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+   
+     // Create a copy of formData without confirmPassword
+    const { confirmPassword, ...userData } = formData;
+
+    if(signup === "signup"){
+      dispatch(registerUser(userData)).then((data)=>{
+       if(data?.payload?.success) {
+        navigate("/home");
+        // toast.success(data?.payload?.message);
+        console.log(data?.payload?.message)
+        setFormData(intialState) ;    
+       }else{
+        // toast.error(data?.payload?.message);
+        console.log(data?.payload?.message)
+        setFormData(intialState);
+       }
+      })
+    }
+  };
+
 
   return (
     <div className="bg-slate-300 flex justify-center items-center h-screen overflow-hidden">
@@ -18,13 +67,10 @@ const Login = () => {
 
       {/* Right: Login Form */}
       <div className="lg:p-36 md:p-52 sm:p-20 p-8 w-full lg:w-1/2">
-        <h1 className="text-2xl font-semibold mb-4">{signup === "signup" ? "Sign Up" : "L0gin"}</h1>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate("/home");
-          }}
-        >
+        <h1 className="text-2xl font-semibold mb-4 text-center">
+          {signup === "signup" ? "Sign Up" : "Login"}
+        </h1>
+        <form onSubmit={submit}>
           {/* Username Input */}
           <div className="mb-2 bg-slate-300">
             <label htmlFor="username" className="block text-gray-600">
@@ -32,10 +78,12 @@ const Login = () => {
             </label>
             <input
               type="text"
-              id="username"
-              name="username"
+              id="userName"
+              name="userName"
               className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
               autoComplete="off"
+              value={formData.userName}
+              onChange={handleChange}
             />
           </div>
 
@@ -47,17 +95,19 @@ const Login = () => {
               </label>
               <input
                 type="email"
-                id="extra"
-                name="extra"
+                id="email"
+                name="email"
                 className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
-                autoComplete="off"
+                value={formData.email}
+              onChange={handleChange}
+
               />
             </div>
           )}
 
           {/* Password Input */}
           <div className="mb-2">
-            <label htmlFor="password" className="block text-gray-800">
+            <label htmlFor="password" className="block text-gray-600">
               Password
             </label>
             <input
@@ -66,22 +116,28 @@ const Login = () => {
               name="password"
               className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
               autoComplete="off"
+              value={formData.password}
+
+              onChange={handleChange}
+
             />
           </div>
 
           {/*confirm password */}
           {signup !== "login" && (
             <div className="mb-2">
-              <label htmlFor="password" className="block text-gray-800">
+              <label htmlFor="password" className="block text-gray-600">
                 {" "}
                 Confirm Password
               </label>
               <input
                 type="password"
-                id="password"
-                name="password"
+                id="confirmPassword"
+                name="confirmPassword"
                 className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
                 autoComplete="off"
+                value={formData.confirmPassword}
+                onChange={handleChange}
               />
             </div>
           )}
@@ -126,9 +182,7 @@ const Login = () => {
               : "Dont't have an Account? Signup"}
           </button>
         </div>
-        <div>
-          sign in with google
-        </div>
+        <div>sign in with google</div>
       </div>
     </div>
   );

@@ -25,6 +25,28 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const logInUser = createAsyncThunk (
+  "/auth/login",
+  async( formData,{rejectWithValue} ) => {
+    try {
+        const response = await axios.post(
+        "http://localhost:7000/api/user/login",
+      formData,
+        {
+          withCredentials: true,
+        }
+        );
+        return response.data;
+
+    }catch(err){
+      return rejectWithValue(err.response.data.message || "login failed");
+    }
+  
+
+  }
+  
+)
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -44,6 +66,21 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isAuth = false;
         (state.user = null)
+      })
+
+      .addCase(logInUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(logInUser.fulfilled, (state) => {
+        console.log(state.payload)
+        state.isLoading = false;
+        state.user = null;
+        state.isAuth = false;
+      })
+      .addCase(logInUser.rejected, (state) => {
+        state.isLoading = false;
+        state.isAuth = false;
+        state.user = state.payload.user
       })
     }
 });

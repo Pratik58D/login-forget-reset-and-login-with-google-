@@ -98,7 +98,7 @@ export const login = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "sucessfully login",
+      message : "successfully login",
       accessToken,
       user :{
         userName : user.userName,
@@ -112,5 +112,46 @@ export const login = async (req, res) => {
       message: "server Error",
       success: false,
     });
+  }
+};
+
+
+export const logout = async (req,res) =>{
+  try {
+
+    res.clearCookie("refreshToken",{
+      httpOnly: true,
+      secure : false,
+      sameSite : "Strict"
+    });
+
+    return res.status(200).json({
+      success : true,
+      message :"logout out sucessful"
+    })
+
+    
+  } catch (error) {
+    console.error("Logout error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Server error during logout",
+    });
+    
+  }
+}
+
+
+export const checkAuth = async (req, res) => {
+  try {
+    const user = req.user;
+    res.status(200).json({
+      success: true,
+      message: "User is authenticated",
+      user,
+    })
+  } catch (error) {
+    console.log("error in auth controller", error.message);
+    res.status(500).json({ sucess: false, message: "Server error" });
   }
 };

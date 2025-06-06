@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { loginFormControl } from "../components/config/alllist";
-import { logInUser } from "../store/slices/authSlices";
+import {  logInUser } from "../store/slices/authSlices";
 import CommonForm from "../components/common/CommonForm";
+import { toast } from "react-toastify";
 
 
 const intialState = {
@@ -19,8 +20,11 @@ const Login = () => {
 const onSubmit =(e) =>{
   e.preventDefault();
   dispatch(logInUser(formData)).then((data)=>{
-    console.log(data)
+   
+    if(data?.payload?.success){
+      toast.success(data?.payload?.message)
     navigate("/home")
+    }
   })
 
 
